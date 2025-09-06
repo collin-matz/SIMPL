@@ -5,4 +5,97 @@
 //              string a number of times equal to the integer input.  Places the memory address of the
 //              new string on the stack. 
 
+// add a base case for negative repeats
+                DUP
+                ISNEG
+                JUMPC exit_0_base
 
+// add a base case for 0 repeats
+                DUP
+                PUSHIMM 0
+                EQUAL
+                JUMPC exit_0_base
+
+// first, we need to find the length of the string
+                PUSHIMM 0           // initialize the str len value  
+                PUSHOFF 0           // move the memory address to TOS so we can PUSHIND the value
+                DUP                  
+next_ch:        PUSHIND             // push the data at that memory address to the stack
+                PUSHIMMCH '\0'      // push a null terminator for comparison to the data
+                EQUAL               // push their equality value to the stack
+                JUMPC end_of_str    // if they are equal, jump to the exit
+
+                PUSHIMM 1           // if they are not equal, increment addr by 1
+                ADD                 
+                PUSHOFF 2           // increment the str len by 1    
+                PUSHIMM 1
+                ADD
+                STOREOFF 2          // overwrite the old memory addr by the incremented val
+                PUSHOFF 3
+                JUMP next_ch        // go to the next character iteration
+
+// now, we malloc new memory
+end_of_str:     ADDSP -1
+                PUSHOFF 1
+                TIMES
+                PUSHIMM 1
+                ADD
+                MALLOC
+
+// now, copy the string into the memory location
+copy:           PUSHOFF 1
+                PUSHOFF 2
+                PUSHOFF 0
+                DUP
+
+next_ch_2:      PUSHIND             // push the data at that memory address to the stack
+                DUP
+                PUSHIMMCH '\0'      // push a null terminator for comparison to the data
+                EQUAL               // push their equality value to the stack
+                JUMPC next_iter     // if they are equal, jump to the exit
+            
+                PUSHOFF 4
+                SWAP
+                STOREIND
+
+                PUSHOFF 4           // increment heap location
+                PUSHIMM 1
+                ADD
+                STOREOFF 4
+
+                PUSHIMM 1           // increment str location
+                ADD
+                DUP
+
+                JUMP next_ch_2
+
+next_iter:      ADDSP -1
+                PUSHOFF 3           // decrement counter
+                PUSHIMM -1
+                ADD
+
+                DUP
+                PUSHIMM 0
+                EQUAL
+                JUMPC exit_loop
+
+                STOREOFF 3
+                ADDSP -1
+                PUSHOFF 0
+                DUP
+                JUMP next_ch_2
+
+exit_loop:      ADDSP -2
+                PUSHIMMCH '\0'
+                STOREIND
+                ADDSP -1
+                STOREOFF 0
+                ADDSP -1
+                JUMP exit
+
+exit_0_base:    PUSHIMM 0
+                MALLOC
+                STOREOFF 0
+                ADDSP -1
+                
+exit:
