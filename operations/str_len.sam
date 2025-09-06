@@ -1,0 +1,23 @@
+// str_len
+// Input: Memory Address
+// Output: Integer
+// Description: Computes the length of the null-terminated character array at the input memory address.
+//              Places the return value on the stack.
+
+                PUSHIMM 0           // initialize the str len value  
+                PUSHOFF 0           // move the memory address to TOS so we can PUSHIND the value                  
+next_ch:        PUSHIND             // push the data at that memory address to the stack
+                PUSHIMMCH '\0'      // push a null terminator for comparison to the data
+                EQUAL               // push their equality value to the stack
+                JUMPC end_of_str    // if they are equal, jump to the exit
+
+                PUSHIMM 1           // if they are not equal, increment the str len by 1
+                ADD                 
+                PUSHOFF 0           // increment the addr by 1    
+                PUSHIMM 1
+                ADD
+                STOREOFF 0          // overwrite the old memory addr by the incremented val
+                PUSHOFF 0
+                JUMP next_ch        // go to the next character iteration
+
+end_of_str:     STOREOFF 0          // store the length on top of the stack where the addr was

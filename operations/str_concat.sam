@@ -1,0 +1,53 @@
+PUSHIMMSTR "Hello world,"
+PUSHIMMSTR " I'm Collin!"
+
+// str_concat
+// Input: Memory Address, Memory Address
+// Output: Memory Address
+// Description: Allocates a new string and concatenates the input strings into the new string.  Places the
+//              memory address of the new string on the stack.
+
+// get the length of the two input strings to MALLOC the new string on the heap
+
+// len of string 1
+                PUSHIMM 0           // initialize the str len value  
+                PUSHOFF 0           // move the memory address to TOS so we can PUSHIND the value                  
+next_ch_1:      PUSHIND             // push the data at that memory address to the stack
+                PUSHIMMCH '\0'      // push a null terminator for comparison to the data
+                EQUAL               // push their equality value to the stack
+                JUMPC next_str      // if they are equal, jump to the exit
+
+                PUSHIMM 1           // if they are not equal, increment the str len by 1
+                ADD                 
+                PUSHOFF 0           // increment the addr by 1    
+                PUSHIMM 1
+                ADD
+                STOREOFF 0          // overwrite the old memory addr by the incremented val
+                PUSHOFF 0
+                JUMP next_ch_1      // go to the next character iteration
+
+// len of string 2
+next_str:     
+                PUSHIMM 0           // initialize the str len value  
+                PUSHOFF 1           // move the memory address to TOS so we can PUSHIND the value                  
+next_ch_2:      PUSHIND             // push the data at that memory address to the stack
+                PUSHIMMCH '\0'      // push a null terminator for comparison to the data
+                EQUAL               // push their equality value to the stack
+                JUMPC concat        // if they are equal, jump to the exit
+
+                PUSHIMM 1           // if they are not equal, increment the str len by 1
+                ADD                 
+                PUSHOFF 1           // increment the addr by 1    
+                PUSHIMM 1
+                ADD
+                STOREOFF 1          // overwrite the old memory addr by the incremented val
+                PUSHOFF 1
+                JUMP next_ch_2      // go to the next character iteration
+
+concat:         ADD                 // add the two lengths together
+                PUSHIMM 1
+                ADD
+                MALLOC              // allocate heap memory that is the size of the two strings +1
+
+// now that the space exists, we go back through each string
+// and set each memory location
