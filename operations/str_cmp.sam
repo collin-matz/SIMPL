@@ -4,3 +4,56 @@
 // Description: Compares the two input values. If the first input value is bigger than the second input value, a 1 is placed on the stack. 
 //              If they are equal, a 0 is placed on the stack. If the first input value is smaller than the second input value, a -1 is placed on the stack.
 
+next_iter:      PUSHOFF 0
+                PUSHIND
+                PUSHOFF 1
+                PUSHIND
+                CMP
+
+                DUP
+                PUSHIMM -1
+                EQUAL
+                JUMPC less_than
+
+                DUP
+                PUSHIMM 0
+                EQUAL
+                JUMPC equal_to
+
+                DUP
+                PUSHIMM 1
+                EQUAL
+                JUMPC greater_than
+
+less_than:      STOREOFF 0
+                ADDSP -1
+                JUMP exit
+
+equal_to:       ADDSP -1
+                PUSHOFF 0
+                PUSHIND
+                PUSHIMMCH '\0'
+                EQUAL
+                JUMPC exit_equal_to
+
+                PUSHOFF 0
+                PUSHIMM 1
+                ADD
+                STOREOFF 0
+
+                PUSHOFF 1
+                PUSHIMM 1
+                ADD
+                STOREOFF 1
+
+                JUMP next_iter
+
+greater_than:   STOREOFF 0
+                ADDSP -1
+                JUMP exit
+
+exit_equal_to:
+                ADDSP -2
+                PUSHIMM 0
+
+exit:
